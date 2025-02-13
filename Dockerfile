@@ -32,4 +32,4 @@ RUN uv pip install -r requirements.txt
 
 COPY . .
 
-CMD ["uv", "run", "app.py"]
+CMD ["./start.sh"]

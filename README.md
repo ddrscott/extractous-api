@@ -17,7 +17,7 @@ docker build . -t $(basename $PWD)
 **Run as API**
 
 ```bash
-docker run --rm -p 8080:8080 -v $PWD:/app $_ ./start.sh
+docker run --rm -p 8080:8080 -v $PWD:/app $_
 ```
 
 Open http://localhost:8080 in your browser to read the basic docs and try the 'xml' endpoint.
