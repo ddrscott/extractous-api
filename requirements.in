@@ -1,6 +1,7 @@
 # extractous
 click
 fastapi
+pyjwt
 python-multipart
 uvicorn
 

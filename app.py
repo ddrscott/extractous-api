@@ -2,15 +2,32 @@ import click
 import uuid
 import os
 import sys
-from fastapi import FastAPI, File, UploadFile
+import jwt
+import logging
+from fastapi import FastAPI, File, UploadFile, HTTPException, Header, Depends
 from extractous import Extractor
 
-# Set reasonable defaults
-extractor = Extractor()
-extractor = extractor.set_extract_string_max_length(-1)
-extractor = extractor.set_xml_output(True)
 
-app = FastAPI(docs_url='/')
+jwt_secret = os.getenv('JWT_SECRET', None)
+if not jwt_secret:
+    raise ValueError(f"Missing JWT_SECRET environment variable! Set it to a random string.")
+
+# Set reasonable defaults for Extractor
+extractor = Extractor()
+extractor.set_extract_string_max_length(-1)
+extractor.set_xml_output(True)
+
+async def require_auth_token(authorization: str = Header(...)):
+    try:
+        logging.info(f'Authorization: {authorization}')
+        token = authorization.split(' ')[1]
+        payload = jwt.decode(token, jwt_secret, algorithms=["HS256"])
+        return payload
+    except Exception as e:
+        logging.exception("Invalid token", e)
+        raise HTTPException(status_code=401, detail="Invalid token! Ask an admin to make one for you at https://jwt.io")
+
+app = FastAPI(docs_url='/', dependencies=[Depends(require_auth_token)])
 
 @click.command()
 @click.option('--input', help='Input file path', required=True)
